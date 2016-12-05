@@ -11,7 +11,7 @@ FFanEnv::setLogPath(__DIR__ . DIRECTORY_SEPARATOR . 'runtime');
 FFanEnv::setDev();
 
 $client = new Client();
-$opt = new ClientOption('http://www.baidu.com');
+$opt = new ClientOption('https://www.baidu.com');
 $opt->setJsonResultFlag(false);
 $opt2 = new ClientOption('http://192.168.128.128/test.php', ClientOption::METHOD_POST, array('a' => 1, 'b' => 2));
 $opt2->setJsonResultFlag(false);

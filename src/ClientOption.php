@@ -23,6 +23,57 @@ class ClientOption
     private $_json_result_flag = true;
 
     /**
+     * @var string 请求方法
+     */
+    private $_method = self::METHOD_GET;
+
+    /**
+     * @var int 超时
+     */
+    private $_timeout = self::DEFAULT_TIMEOUT;
+
+    /**
+     * @var string url 地址
+     */
+    private $_url;
+
+    /**
+     * @var null|array post数据包
+     */
+    private $_post_data = null;
+
+    /**
+     * @var null|array 自定义头
+     */
+    private $_header_arr = null;
+
+    /**
+     * @var bool 是否json传输
+     */
+    private $_json_encode = false;
+
+    /**
+     * @var bool 是否缓存结果，仅当GET方法是有效
+     */
+    private $_cache_flag = true;
+
+    /**
+     * @var float 开始时间
+     */
+    private $_start_time = 0;
+
+    /**
+     * @var float 结束时间
+     */
+    private $_spend_time = 0;
+
+    /**
+     * @var string 如果是https请求，证书信息
+     * null 表示不验证 如果设置了证书，需要验证
+     */
+    private static $_ssl_ca_info = null;
+
+    /**
      * @var array 方法对象名称
      */
     public static $method_name = array(
@@ -67,51 +118,6 @@ class ClientOption
     {
         return $this->_json_result_flag;
     }
-
-    /**
-     * @var string 请求方法
-     */
-    private $_method = self::METHOD_GET;
-
-    /**
-     * @var int 超时
-     */
-    private $_timeout = self::DEFAULT_TIMEOUT;
-
-    /**
-     * @var string url 地址
-     */
-    private $_url;
-
-    /**
-     * @var null|array post数据包
-     */
-    private $_post_data = null;
-
-    /**
-     * @var null|array 自定义头
-     */
-    private $_header_arr = null;
-
-    /**
-     * @var bool 是否json传输
-     */
-    private $_json_encode = false;
-
-    /**
-     * @var bool 是否缓存结果，仅当GET方法是有效
-     */
-    private $_cache_flag = true;
-
-    /**
-     * @var float 开始时间
-     */
-    private $_start_time = 0;
-
-    /**
-     * @var float 结束时间
-     */
-    private $_spend_time = 0;
 
     /**
      * 设置是否json串传输数据
@@ -171,6 +177,16 @@ class ClientOption
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
         );
+        //如果是ssl
+        if (0 === strpos($this->_url, 'https://')) {
+            $options[CURLOPT_SSL_VERIFYHOST] = '2';
+            //如果没有证书信息
+            if (null !== self::$_ssl_ca_info) {
+                $options[CURLOPT_SSL_VERIFYHOST] = 2;
+                $options[CURLOPT_SSL_VERIFYPEER] = true;
+                $options[CURLOPT_CAINFO] = self::$_ssl_ca_info;
+            }
+        }
         switch ($this->_method) {
             case self::METHOD_GET:
                 $options[CURLOPT_POST] = 0;
@@ -195,6 +211,14 @@ class ClientOption
         }
         $this->_start_time = microtime(true);
         return $options;
+    }
+
+    /**
+     * 设置证书信息
+     * @param string $ca_info
+     */
+    public static function setCaInfo($ca_info){
+        self::$_ssl_ca_info = $ca_info;
     }
 
     /**
