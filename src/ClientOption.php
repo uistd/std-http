@@ -53,11 +53,6 @@ class ClientOption
     private $_json_encode = false;
 
     /**
-     * @var bool 是否缓存结果，仅当GET方法是有效
-     */
-    private $_cache_flag = true;
-
-    /**
      * @var float 开始时间
      */
     private $_start_time = 0;
@@ -219,23 +214,6 @@ class ClientOption
      */
     public static function setCaInfo($ca_info){
         self::$_ssl_ca_info = $ca_info;
-    }
-
-    /**
-     * 设置使用缓存标志
-     * @param bool $flag
-     */
-    public function setCacheFlag($flag = true)
-    {
-        $this->_cache_flag = (bool)$flag;
-    }
-
-    /**
-     * 获取是否使用cache的标志
-     */
-    public function getCacheFlag()
-    {
-        return $this->_cache_flag;
     }
 
     /**
