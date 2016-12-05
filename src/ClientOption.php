@@ -18,6 +18,11 @@ class ClientOption
     const METHOD_DELETE = 4;
 
     /**
+     * @var bool 返回结果是否json_decode
+     */
+    private $_json_result_flag = true;
+
+    /**
      * @var array 方法对象名称
      */
     public static $method_name = array(
@@ -43,6 +48,24 @@ class ClientOption
         $this->_url = $url;
         $this->_post_data = $post_data;
         $this->_timeout = (int)$timeout;
+    }
+
+    /**
+     * 设置是否自动将返回结果json_decode
+     * @param bool $flag 标志
+     */
+    public function setJsonResultFlag($flag)
+    {
+        $this->_json_result_flag = (bool)$flag;
+    }
+
+    /**
+     * 获取json result flag
+     * @return bool
+     */
+    public function getJsonResultFlag()
+    {
+        return $this->_json_result_flag;
     }
 
     /**
@@ -79,6 +102,16 @@ class ClientOption
      * @var bool 是否缓存结果，仅当GET方法是有效
      */
     private $_cache_flag = true;
+
+    /**
+     * @var float 开始时间
+     */
+    private $_start_time = 0;
+
+    /**
+     * @var float 结束时间
+     */
+    private $_spend_time = 0;
 
     /**
      * 设置是否json串传输数据
@@ -160,6 +193,7 @@ class ClientOption
         if (!empty($this->_header_arr)) {
             $options[CURLOPT_HTTPHEADER] = $this->_header_arr;
         }
+        $this->_start_time = microtime(true);
         return $options;
     }
 
@@ -202,16 +236,15 @@ class ClientOption
 
     /**
      * 生成日志字符串
-     * @param float $spend_time 使用时间
      * @param int $error_no 错误编号
      * @param int $http_code http状态码
      * 如果curl已经出错，不需要检查http_code
      * @return string
      */
-    public function toLogMsg($spend_time, $error_no, $http_code = 0)
+    public function toLogMsg($error_no, $http_code = 0)
     {
         $str = 'Curl [' . self::$method_name[$this->_method] . '] ' . $this->_url . PHP_EOL
-            . '[time] => max:' . $this->_timeout . ' use:' . floor($spend_time * 1000) . PHP_EOL;
+            . '[time] => max:' . $this->_timeout . ' use:' . $this->_spend_time . 'ms' . PHP_EOL;
         if (!empty($this->_post_data)) {
             $str .= '[post_data] => ' . print_r($this->_post_data, true);
         }
@@ -220,11 +253,19 @@ class ClientOption
         }
         $str .= '[status] => ';
         if ($error_no > 0) {
-            $str .= 'ERROR '. isset(self::$error_code[$error_no]) ? self::$error_code[$error_no] : 'UNKNOWN';
+            $str .= 'ERROR ' . isset(self::$error_code[$error_no]) ? self::$error_code[$error_no] : 'UNKNOWN';
         } else {
             $str .= 'HTTP_CODE: ' . $http_code;
         }
         return $str;
+    }
+
+    /**
+     * 完成
+     */
+    public function complete()
+    {
+        $this->_spend_time = floor((microtime(true) - $this->_start_time) * 1000);
     }
 
     /**

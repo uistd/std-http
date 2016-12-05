@@ -26,7 +26,7 @@ class Client
      * 获取日志记录器
      * @return LoggerInterface
      */
-    private function getLogger()
+    public static function getLogger()
     {
         return LoggerFactory::get();
     }
@@ -59,36 +59,24 @@ class Client
     /**
      * 执行请求
      * @param ClientOption $opt 一个请求对象
-     * @return string 获取的结果
+     * @return Response
      * @throws HttpException
      */
     public function request(ClientOption $opt)
     {
-        $start_time = microtime(true);
         $curl_handle = $this->getCurlHandle();
         curl_setopt_array($curl_handle, $opt->dumpCurlOpt());
         $response_text = curl_exec($curl_handle);
         $this->resetCurl();
-        $end_time = microtime(true);
-        $logger = $this->getLogger();
+        $opt->complete();
         $error_no = curl_errno($curl_handle);
         $http_code = 0;
         if (0 == $error_no) {
             $info = curl_getinfo($this->_curl_handle);
             $http_code = $info['http_code'];
         }
-        $log_msg = $opt->toLogMsg($end_time - $start_time, $error_no, $http_code);
-        //错误处理
-        if ($error_no > 0) {
-            $logger->error($log_msg);
-            throw new HttpException('Curl error, error no:' . $error_no, HttpException::EXECUTE_ERROR);
-        }
-        if (200 != $http_code) {
-            $logger->error($log_msg);
-            throw new HttpException('Curl http code:' . $http_code);
-        }
-        $logger->info($log_msg);
-        return $response_text;
+        $response = new Response($opt, $error_no, $http_code, $response_text);
+        return $response;
     }
 
     /**
@@ -106,47 +94,50 @@ class Client
         }
         $handle_arr = [];
         $handle_map = [];
-        foreach ($requests as $key => $each_req) {
-            $tmp_ch = curl_init();
-            if (false === $tmp_ch) {
+        /**
+         * @var string|int $key
+         * @var ClientOption $each_opt
+         */
+        foreach ($requests as $key => $each_opt) {
+            $tmp_handle = curl_init();
+            if (false === $tmp_handle) {
                 curl_multi_close($multi_handle);
                 throw new HttpException('Can not create curl any more');
             }
-            $handle_arr[$key] = $tmp_ch;
-            $handle_map[(int)$tmp_ch] = $key;
-            curl_setopt_array($tmp_ch, $each_req);
-            curl_multi_add_handle($multi_handle, $tmp_ch);
+            $handle_arr[$key] = $tmp_handle;
+            $handle_map[(int)$tmp_handle] = $key;
+            $options = $each_opt->dumpCurlOpt();
+            curl_setopt_array($tmp_handle, $options);
+            curl_multi_add_handle($multi_handle, $tmp_handle);
         }
-        $start_time = microtime(true);
         if (empty($handle_arr)) {
             return $result;
         }
-        $logger = $this->getLogger();
         do {
             while (($code = curl_multi_exec($multi_handle, $active)) == CURLM_CALL_MULTI_PERFORM) ;
 
             if ($code != CURLM_OK) {
                 break;
             }
-            while ($done = curl_multi_info_read($multi_handle)) {
-                $end_time = microtime(true);
-                $spend_time = floor(($end_time - $start_time) * 1000);
-                $tmp_ch = $done['handle'];
-                $err_no = curl_errno($tmp_ch);
-                $tmp_result = array('error_no' => $err_no, 'data' => '');
-
-                if ($err_no) {
-                    $tmp_result['err_msg'] = curl_error($tmp_ch);
+            while ($done_info = curl_multi_info_read($multi_handle)) {
+                $tmp_handle = $done_info['handle'];
+                $key = $handle_map[(int)$tmp_handle];
+                /** @var ClientOption $this_opt */
+                $this_opt = $requests[$key];
+                $this_opt->complete();
+                $error_no = curl_errno($tmp_handle);
+                $http_code = 0;
+                if (0 == $error_no) {
+                    $info = curl_getinfo($tmp_handle);
+                    $http_code = $info['http_code'];
                 }
-                $info = curl_getinfo($tmp_ch);
-                $tmp_result['http_code'] = $info['http_code'];
-                if (200 == $info['http_code']) {
-                    $tmp_result['data'] = curl_multi_getcontent($tmp_ch);
+                $data = '';
+                if (0 == $error_no && 200 == $http_code) {
+                    $data = curl_multi_getcontent($tmp_handle);
                 }
-                $key = $handle_map[(int)$tmp_ch];
-                $result[$key] = $tmp_result;
-                curl_multi_remove_handle($multi_handle, $tmp_ch);
-                curl_close($tmp_ch);
+                $result[$key] = new Response($this_opt, $error_no, $http_code, $data);
+                curl_multi_remove_handle($multi_handle, $tmp_handle);
+                curl_close($tmp_handle);
             }
             if ($active > 0) {
                 curl_multi_select($multi_handle, 0.1);
