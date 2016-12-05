@@ -92,4 +92,13 @@ class Response
         }
         return $this->_data;
     }
+
+    /**
+     * 是否请求成功
+     * @return bool
+     */
+    public function isSuccess()
+    {
+        return self::STATUS_SUCCESS === $this->_status;
+    }
 }
