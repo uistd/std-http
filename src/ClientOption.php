@@ -177,7 +177,6 @@ class ClientOption
             $options[CURLOPT_SSL_VERIFYHOST] = '2';
             //如果没有证书信息
             if (null !== self::$_ssl_ca_info) {
-                $options[CURLOPT_SSL_VERIFYHOST] = 2;
                 $options[CURLOPT_SSL_VERIFYPEER] = true;
                 $options[CURLOPT_CAINFO] = self::$_ssl_ca_info;
             }
