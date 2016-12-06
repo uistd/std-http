@@ -32,12 +32,13 @@ class Response
      * @param int $error_no 错误编码
      * @param int $http_code http状态码
      * @param string $data 数据
+     * @param bool $is_multi 是否是并发请求
      */
-    public function __construct(ClientOption $opt, $error_no, $http_code = 0, $data = '')
+    public function __construct(ClientOption $opt, $error_no, $http_code = 0, $data = '', $is_multi = false)
     {
         $this->_opt = $opt;
         $logger = Client::getLogger();
-        $log_msg = $opt->toLogMsg($error_no, $http_code);
+        $log_msg = $opt->toLogMsg($error_no, $http_code, $is_multi);
 
         //error_no 大于0，表示curl发生错误
         if ($error_no > 0) {

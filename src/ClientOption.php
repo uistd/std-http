@@ -241,11 +241,16 @@ class ClientOption
      * @param int $error_no 错误编号
      * @param int $http_code http状态码
      * 如果curl已经出错，不需要检查http_code
+     * @param bool $is_multi 是否并发请求
      * @return string
      */
-    public function toLogMsg($error_no, $http_code = 0)
+    public function toLogMsg($error_no, $http_code = 0, $is_multi = false)
     {
-        $str = 'Curl [' . self::$method_name[$this->_method] . '] ' . $this->_url . PHP_EOL
+        $str = 'Curl [';
+        if ($is_multi){
+            $str .= 'MultiRequest ';
+        }
+        $str .= self::$method_name[$this->_method] . '] ' . $this->_url . PHP_EOL
             . '[time] => max:' . $this->_timeout . ' use:' . $this->_spend_time . 'ms' . PHP_EOL;
         if (!empty($this->_post_data)) {
             $str .= '[post_data] => ' . print_r($this->_post_data, true);

@@ -135,7 +135,7 @@ class Client
                 if (0 == $error_no && 200 == $http_code) {
                     $data = curl_multi_getcontent($tmp_handle);
                 }
-                $result[$key] = new Response($this_opt, $error_no, $http_code, $data);
+                $result[$key] = new Response($this_opt, $error_no, $http_code, $data, true);
                 curl_multi_remove_handle($multi_handle, $tmp_handle);
                 curl_close($tmp_handle);
             }
