@@ -164,7 +164,7 @@ class ClientOption
     public function dumpCurlOpt()
     {
         $options = array(
-            CURLOPT_TIMEOUT => $this->_timeout,
+            CURLOPT_TIMEOUT_MS => $this->_timeout,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_URL => $this->_url,
             CURLOPT_SSL_VERIFYHOST => false,
