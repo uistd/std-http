@@ -1,14 +1,18 @@
 <?php
 namespace ffan\http;
 
-use ffan\utils\Env as FFanEnv;
-
 require_once '../vendor/autoload.php';
 require_once '../src/Client.php';
 require_once '../src/HttpException.php';
 
-FFanEnv::setLogPath(__DIR__ . DIRECTORY_SEPARATOR . 'runtime');
-FFanEnv::setDev();
+use ffan\utils\Config as FFanConfig;
+use ffan\utils\Debug as FFanDebug;
+
+FFanConfig::addArray(array(
+    'env' => 'dev',
+    'log_path' => __DIR__ . DIRECTORY_SEPARATOR . 'runtime'
+));
+
 
 $client = new Client();
 $opt = new ClientOption('https://www.baidu.com');
@@ -25,14 +29,14 @@ $requests = array(
     'opt4' => $opt4,
     'opt5' => $opt5,
 );
-$t1 = microtime(true);
+FFanDebug::timerStart();
 //分别执行
 foreach ($requests as $each_req) {
     $re = $client->request($each_req);
     $re->get();
 }
-echo 'Done! use time:' . floor((microtime(true) - $t1) * 1000) . 'ms' . PHP_EOL;
-$t2 = microtime(true);
+echo 'Done! use time:' . FFanDebug::timerStop() . 'ms' . PHP_EOL;
+FFanDebug::timerStart();
 //批量执行
 $res = $client->multiRequest($requests);
 /**
@@ -42,4 +46,4 @@ $res = $client->multiRequest($requests);
 foreach ($res as $key => $response) {
     $response->get();
 }
-echo 'Done! use time:' . floor((microtime(true) - $t2) * 1000) . 'ms' . PHP_EOL;
+echo 'Done! use time:' . FFanDebug::timerStop() . 'ms' . PHP_EOL;
