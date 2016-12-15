@@ -2,7 +2,7 @@
 namespace ffan\php\http;
 
 use Psr\Log\LoggerInterface;
-use ffan\logger\LoggerFactory;
+use ffan\php\logger\LoggerFactory;
 
 /**
  * Class Client
