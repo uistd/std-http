@@ -1,5 +1,5 @@
 <?php
-namespace ffan\http;
+namespace ffan\php\http;
 
 require_once '../vendor/autoload.php';
 require_once '../src/Client.php';

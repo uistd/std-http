@@ -1,9 +1,9 @@
 <?php
-namespace ffan\http;
+namespace ffan\php\http;
 
 /**
  * Class Response 返回类
- * @package ffan\http
+ * @package ffan\php\http
  */
 class Response
 {

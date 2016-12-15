@@ -1,12 +1,12 @@
 <?php
-namespace ffan\http;
+namespace ffan\php\http;
 
 use Psr\Log\LoggerInterface;
 use ffan\logger\LoggerFactory;
 
 /**
  * Class Client
- * @package ffan\http
+ * @package ffan\php\http
  */
 class Client
 {

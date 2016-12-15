@@ -1,9 +1,9 @@
 <?php
-namespace ffan\http;
+namespace ffan\php\http;
 
 /**
  * Class ClientOption
- * @package ffan\http
+ * @package ffan\php\http
  */
 class ClientOption
 {

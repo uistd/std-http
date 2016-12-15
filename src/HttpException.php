@@ -1,11 +1,11 @@
 <?php
-namespace ffan\http;
+namespace ffan\php\http;
 
 use ffan\utils\Exception as FFanException;
 
 /**
  * Class HttpException
- * @package ffan\http
+ * @package ffan\php\http
  */
 class HttpException extends \Exception implements FFanException
 {
