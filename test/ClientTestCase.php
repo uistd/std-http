@@ -2,15 +2,16 @@
 namespace ffan\php\http;
 
 require_once '../vendor/autoload.php';
-require_once '../src/Client.php';
-require_once '../src/HttpException.php';
 
-use ffan\utils\Config as FFanConfig;
-use ffan\utils\Debug as FFanDebug;
+use ffan\php\utils\Config as FFanConfig;
+use ffan\php\utils\Debug as FFanDebug;
 
 FFanConfig::addArray(array(
     'env' => 'dev',
-    'log_path' => __DIR__ . DIRECTORY_SEPARATOR . 'runtime'
+    'ffan-logger.web' => array(
+        'file' => 'http',
+    ),
+    'runtime_path' => __DIR__ . DIRECTORY_SEPARATOR . 'runtime',
 ));
 
 

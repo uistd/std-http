@@ -211,7 +211,8 @@ class ClientOption
      * 设置证书信息
      * @param string $ca_info
      */
-    public static function setCaInfo($ca_info){
+    public static function setCaInfo($ca_info)
+    {
         self::$_ssl_ca_info = $ca_info;
     }
 
@@ -246,7 +247,7 @@ class ClientOption
     public function toLogMsg($error_no, $http_code = 0, $is_multi = false)
     {
         $str = 'Curl [';
-        if ($is_multi){
+        if ($is_multi) {
             $str .= 'MultiRequest ';
         }
         $str .= self::$method_name[$this->_method] . '] ' . $this->_url . PHP_EOL

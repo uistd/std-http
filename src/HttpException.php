@@ -1,13 +1,11 @@
 <?php
 namespace ffan\php\http;
 
-use ffan\utils\Exception as FFanException;
-
 /**
  * Class HttpException
  * @package ffan\php\http
  */
-class HttpException extends \Exception implements FFanException
+class HttpException extends \Exception
 {
     /**
      * 状态错误
