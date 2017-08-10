@@ -1,5 +1,5 @@
 {
-  "name": "ffan/php/http",
+  "name": "ffan/php-http",
   "description": "FFan http components",
   "keywords": [
     "ffan",
@@ -16,8 +16,8 @@
   ],
   "require": {
     "php": ">=5.5.0",
-    "ffan/php/utils": "*",
-    "ffan/php/logger": "*"
+    "ffan/php-utils": "*",
+    "ffan/php-logger": "*"
   },
   "autoload": {
     "psr-4": {
