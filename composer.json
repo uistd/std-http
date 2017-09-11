@@ -1,5 +1,5 @@
 {
-  "name": "ffan/php-http",
+  "name": "ffan/std-http",
   "description": "FFan http components",
   "keywords": [
     "ffan",
@@ -16,12 +16,14 @@
   ],
   "require": {
     "php": ">=5.5.0",
-    "ffan/php-utils": "*",
-    "ffan/php-logger": "*"
+    "ffan/std-common": "2.*",
+    "ffan/std-logger": "1.*",
+    "ffan/std-async": "1.*",
+    "ffan/std-console": "1.*"
   },
   "autoload": {
     "psr-4": {
-      "ffan\\php\\http\\": "src/"
+      "FFan\\Std\\Http\\": "src/"
     }
   },
   "minimum-stability": "dev",
@@ -30,5 +32,21 @@
       "test",
       ".gitignore"
     ]
-  }
+  },
+  "config": {
+    "secure-http": false
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://composer.intra.ffan.com/repo/private/"
+    },
+    {
+      "type": "composer",
+      "url": "http://composer.intra.ffan.com/repo/packagist/"
+    },
+    {
+      "packagist": false
+    }
+  ]
 }
