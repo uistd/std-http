@@ -156,7 +156,7 @@ class Curl
     private $uri;
 
     /**
-     * UisCurl constructor.
+     * Curl constructor.
      * @param HttpClient $client
      * @param string $uri
      * @param string $method
@@ -635,7 +635,7 @@ class Curl
             return;
         }
         unset(self::$request_pool[$this->id]);
-        AsyncCall::setCallback('UisCurl', array('\FFan\Std\Http\UisCurl', 'lazyRequest'));
+        AsyncCall::setCallback('Curl', array('\FFan\Std\Http\Curl', 'lazyRequest'));
         self::$lazy_request_pool[$this->id] = $this;
         $this->is_lazy_load = true;
         $this->lazy_callback = $callback;
