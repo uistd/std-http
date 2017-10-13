@@ -327,7 +327,6 @@ class Curl
                 if ($this->json_query) {
                     $query_data = $this->jsonQueryOption($query_data);
                 }
-                $options[CURLOPT_POST] = 0;
                 $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
                 $options[CURLOPT_POSTFIELDS] = $query_data;
                 break;
