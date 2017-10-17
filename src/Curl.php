@@ -302,6 +302,10 @@ class Curl
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
         );
+        //如果 设置超时时间小于1秒，需要加参数
+        if ($this->timeout < 1000) {
+            $options[CURLOPT_NOSIGNAL] = 1;
+        }
         switch ($this->method) {
             case self::METHOD_GET:
                 //对get参数处理
