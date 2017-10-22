@@ -411,12 +411,12 @@ class Curl
         $this->status = self::STATUS_ERROR;
         $this->saveCostTime();
         $error_code = curl_errno($curl_fd);
+        $error_msg = curl_error($curl_fd);
         $http_code = 0;
         if (0 == $error_code) {
-            $info = curl_getinfo($curl_fd);
-            $http_code = $info['http_code'];
+            $http_code = curl_getinfo($curl_fd, CURLINFO_HTTP_CODE);
         }
-        $this->responseHandle($error_code, $http_code, $response_text, $is_multi);
+        $this->responseHandle($error_code, $error_msg, $http_code, $response_text, $is_multi);
         //懒加载 回调处理
         if ($this->is_lazy_load && $this->lazy_callback) {
             if (null !== $this->lazy_arg) {
@@ -495,15 +495,16 @@ class Curl
 
     /**
      * @param int $error_code 结果码
+     * @param string $error_msg 错误消息
      * @param int $http_code http status
      * @param string $response_text
      * @param bool $is_multi 是否是并行请求
      */
-    private function responseHandle($error_code, $http_code, $response_text, $is_multi = false)
+    private function responseHandle($error_code, $error_msg, $http_code, $response_text, $is_multi = false)
     {
-        $log_msg = $this->logMsg($error_code, $http_code, $is_multi);
+        $log_msg = $this->logMsg($error_code, $error_msg, $is_multi);
         //error_code 大于0，表示curl发生错误
-        if (0 === $error_code && 200 === $http_code) {
+        if (0 === $error_code && empty($error_msg) && 200 === $http_code) {
             $this->response_text = $response_text;
             $this->status = self::STATUS_SUCCESS;
             //sit 或者 dev 打印出结果数据
@@ -522,12 +523,12 @@ class Curl
     /**
      * 生成日志字符串
      * @param int $error_code 错误编号
-     * @param int $http_code http状态码
+     * @param string $error_msg 错误消息
      * 如果curl已经出错，不需要检查http_code
      * @param bool $is_multi 是否并发请求
      * @return string
      */
-    private function logMsg($error_code, $http_code = 0, $is_multi = false)
+    private function logMsg($error_code, $error_msg, $is_multi = false)
     {
         $str = Debug::getIoStepStr() . '[CURL] [';
         if ($is_multi) {
@@ -537,15 +538,14 @@ class Curl
             $str .= 'LAZY ';
         }
         $str .= $this->method . '] ' . $this->url . PHP_EOL
-            . '[TIME] => cost_time:' . $this->cost_time . 'ms' . PHP_EOL;
+            . '[' . $this->cost_time . 'ms]' . PHP_EOL;
         if (!empty($this->query_data) && self::METHOD_GET !== $this->method) {
-            $str .= '[QUERY] => ' . json_encode($this->query_data);
+            $str .= '[QUERY] ' . json_encode($this->query_data);
         }
-        $str .= '[STATUS] => ';
-        if ($error_code > 0) {
-            $str .= 'ERROR ' . CurlCode::errorCode($error_code);
+        if ($error_code > 0 ||!empty($error_msg)) {
+            $str .= '[ERROR]' . $error_msg;
         } else {
-            $str .= 'HTTP_CODE: ' . $http_code;
+            $str .= '[SUCCESS]';
         }
         return $str;
     }
