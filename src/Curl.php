@@ -540,7 +540,7 @@ class Curl
         $str .= $this->method . '] ' . $this->url . PHP_EOL
             . '[' . $this->cost_time . 'ms]' . PHP_EOL;
         if (!empty($this->query_data) && self::METHOD_GET !== $this->method) {
-            $str .= '[QUERY] ' . json_encode($this->query_data);
+            $str .= '[QUERY] ' . json_encode($this->query_data, JSON_UNESCAPED_UNICODE);
         }
         if ($error_code > 0 ||!empty($error_msg)) {
             $str .= '[ERROR]' . $error_msg;
