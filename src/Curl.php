@@ -101,11 +101,6 @@ class Curl
     private $cost_time;
 
     /**
-     * @var int 开始时间
-     */
-    private $start_time;
-
-    /**
      * @var int 过期时间(ms)
      */
     private $timeout;
@@ -346,7 +341,6 @@ class Curl
         if (!empty($this->header_arr)) {
             $options[CURLOPT_HTTPHEADER] = $this->header_arr;
         }
-        $this->start_time = microtime(true);
         return $options;
     }
 
@@ -409,7 +403,7 @@ class Curl
     {
         //先临时设置成error
         $this->status = self::STATUS_ERROR;
-        $this->saveCostTime();
+        $this->saveCostTime($curl_fd);
         $error_code = curl_errno($curl_fd);
         $error_msg = curl_error($curl_fd);
         $http_code = 0;
@@ -586,10 +580,11 @@ class Curl
 
     /**
      * 保存消耗时间
+     * @param Resource $fd
      */
-    private function saveCostTime()
+    private function saveCostTime($fd)
     {
-        $this->cost_time = floor((microtime(true) - $this->start_time) * 1000);
+        $this->cost_time = ceil(curl_getinfo($fd, CURLINFO_TOTAL_TIME) * 1000);
     }
 
     /**
