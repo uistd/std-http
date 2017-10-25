@@ -450,7 +450,7 @@ class Curl
             throw new \RuntimeException('Can not create multi curl');
         }
         $handle_arr = [];
-        $handle_map = [];
+        $req_map = [];
         /**
          * @var int $id
          * @var self $req
@@ -458,7 +458,7 @@ class Curl
         foreach (self::$request_pool as $id => $req) {
             $tmp_handle = self::getCurlFd();
             $handle_arr[$id] = $tmp_handle;
-            $handle_map[(int)$tmp_handle] = $req;
+            $req_map[$id] = $req;
             $options = $req->makeOption();
             unset(self::$request_pool[$id]);
             curl_setopt_array($tmp_handle, $options);
@@ -466,30 +466,27 @@ class Curl
         }
         //增加 i/o 步骤
         Debug::addIoStep();
+        $active = null;
         do {
-            while (($code = curl_multi_exec($multi_handle, $active)) == CURLM_CALL_MULTI_PERFORM) ;
+            $mrc = curl_multi_exec($multi_handle, $active);
+        } while ($mrc == CURLM_CALL_MULTI_PERFORM);
 
-            if ($code !== CURLM_OK) {
-                break;
+        while ($active and $mrc == CURLM_OK) {
+            if(curl_multi_select($multi_handle) === -1){
+                usleep(100);
             }
-            while ($done_info = curl_multi_info_read($multi_handle)) {
-                $tmp_handle = $done_info['handle'];
-                /** @var Curl $current_req */
-                $handle_id = (int)$tmp_handle;
-                if (!isset($handle_map[$handle_id])) {
-                    continue;
-                }
-                $current_req = $handle_map[$handle_id];
-                $data = curl_multi_getcontent($tmp_handle);
-                $current_req->complete($tmp_handle, $data, true);
-                curl_multi_remove_handle($multi_handle, $tmp_handle);
-                curl_close($tmp_handle);
-            }
-            if ($active > 0) {
-                curl_multi_select($multi_handle, 0.1);
-            }
+            do {
+                $mrc = curl_multi_exec($multi_handle, $active);
+            } while ($mrc == CURLM_CALL_MULTI_PERFORM);
+        }
 
-        } while ($active);
+        foreach ($handle_arr as $id => $tmp_handle) {
+            $req = $req_map[$id];
+            $data = curl_multi_getcontent($tmp_handle);
+            $req->complete($tmp_handle, $data, true);
+            curl_multi_remove_handle($multi_handle, $tmp_handle);
+            curl_close($tmp_handle);
+        }
         curl_multi_close($multi_handle);
     }
 
