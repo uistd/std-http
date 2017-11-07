@@ -12,6 +12,21 @@ use FFan\Std\Logger\LogHelper;
 class HttpClient
 {
     /**
+     * 获取结果：默认模式
+     */
+    const DEFAULT_MODE = 1;
+
+    /**
+     * 获取结果：严格模式
+     */
+    const STRICT_MODE = 2;
+
+    /**
+     * 获取结果：兼容模式
+     */
+    const COMPATIBLE_MODE = 3;
+
+    /**
      * @var Curl
      */
     private $uis_curl_handler;
