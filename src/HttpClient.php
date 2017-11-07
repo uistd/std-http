@@ -1,6 +1,8 @@
 <?php
 
 namespace FFan\Std\Http;
+
+use FFan\Std\Common\Env;
 use FFan\Std\Logger\LogHelper;
 
 /**
@@ -146,5 +148,36 @@ class HttpClient
     public function setQueryDataFilter(callable $filter)
     {
         $this->query_data_filter = $filter;
+    }
+
+    /**
+     * 修正错误消息，避免将 服务端 敏感的报错信息返回给前端
+     * @param ApiResult $result
+     */
+    public static function fixErrorMessage(ApiResult $result)
+    {
+        $msg = Env::isProduct() ? '亲，服务器被挤暴了，请稍候再试' : $result->message;
+        switch ($result->status) {
+            //调用sdk参数错误
+            case 4001:
+                $result->status = 501;
+                $result->message = $msg;
+                break;
+            //业务错误
+            case 4002:
+                $result->status = 201;
+                break;
+            //java错误
+            case 5001:
+            case 5000:
+                $result->status = 500;
+                $result->message = $msg;
+                break;
+            default:
+                //如果 发现服务端报错信息大于设置的值，认为是敏感信息，过滤掉
+                if (strlen($result->message > 150)) {
+                    $result->message = $msg;
+                }
+        }
     }
 }
