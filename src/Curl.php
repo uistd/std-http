@@ -15,6 +15,20 @@ use FFan\Std\Logger\LogHelper;
 class Curl
 {
     /**
+     * FORM 表单 以json的方式
+     */
+    const FORM_TYPE_JSON = 1;
+    /**
+     * FORM 表单 以http query的方式
+     */
+    const FORM_TYPE_QUERY = 2;
+
+    /**
+     * FORM 表单 以数组的方式
+     */
+    const FORM_TYPE_ARRAY = 3;
+
+    /**
      * 默认过期时间  1000 毫秒
      */
     const DEFAULT_TIMEOUT = 1000;
@@ -123,7 +137,7 @@ class Curl
     /**
      * @var bool 是否是json串请求数据
      */
-    private $json_query = true;
+    private $form_type = self::FORM_TYPE_JSON;
 
     /**
      * @var array
@@ -214,11 +228,11 @@ class Curl
 
     /**
      * 设置json传输
-     * @param bool $is_json_query
+     * @param int $form_type
      */
-    public function setJsonQuery($is_json_query = true)
+    public function setFormType($form_type)
     {
-        $this->json_query = $is_json_query;
+        $this->form_type = $form_type;
     }
 
     /**
@@ -316,26 +330,24 @@ class Curl
             case self::METHOD_POST:
                 $options[CURLOPT_POST] = 1;
                 if (!empty($query_data)) {
-                    if ($this->json_query) {
-                        $query_data = $this->jsonQueryOption($query_data);
-                    }
+                    $this->convertFormData($query_data);
                     $options[CURLOPT_POSTFIELDS] = $query_data;
                 }
                 break;
             case self::METHOD_PUT:
-                if ($this->json_query) {
-                    $query_data = $this->jsonQueryOption($query_data);
-                }
                 $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
-                $options[CURLOPT_POSTFIELDS] = $query_data;
+                if (!empty($query_data)) {
+                    $this->convertFormData($query_data);
+                    $options[CURLOPT_POSTFIELDS] = $query_data;
+                }
                 break;
             case self::METHOD_DELETE:
                 $this->addHeader('X-HTTP-Method-Override', 'DELETE');
-                if ($this->json_query) {
-                    $query_data = $this->jsonQueryOption($query_data);
-                }
                 $options[CURLOPT_CUSTOMREQUEST] = 'DELETE';
-                $options[CURLOPT_POSTFIELDS] = $query_data;
+                if (!empty($query_data)) {
+                    $this->convertFormData($query_data);
+                    $options[CURLOPT_POSTFIELDS] = $query_data;
+                }
                 break;
         }
         if (!empty($this->header_arr)) {
@@ -349,12 +361,19 @@ class Curl
      * @param array $data
      * @return string
      */
-    private function jsonQueryOption($data)
+    private function convertFormData(&$data)
     {
-        $post_str = json_encode($data, JSON_UNESCAPED_UNICODE);
-        $this->addHeader('Content-Type', 'application/json');
-        $this->addHeader('Content-Length', strlen($post_str));
-        return $post_str;
+        if (self::FORM_TYPE_JSON === $this->form_type) {
+            $post_str = json_encode($data, JSON_UNESCAPED_UNICODE);
+            $this->addHeader('Content-Type', 'application/json');
+            $this->addHeader('Content-Length', strlen($post_str));
+            $data = $post_str;
+        } elseif (self::FORM_TYPE_QUERY === $this->form_type) {
+            $post_str = http_build_query($data);
+            $this->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $this->addHeader('Content-Length', strlen($post_str));
+            $data = $post_str;
+        }
     }
 
     /**
@@ -466,7 +485,7 @@ class Curl
         } while ($mrc == CURLM_CALL_MULTI_PERFORM);
 
         while ($active and $mrc == CURLM_OK) {
-            if(curl_multi_select($multi_handle) === -1){
+            if (curl_multi_select($multi_handle) === -1) {
                 usleep(100);
             }
             do {
@@ -533,7 +552,7 @@ class Curl
         if (!empty($this->query_data) && self::METHOD_GET !== $this->method) {
             $str .= '[QUERY] ' . json_encode($this->query_data, JSON_UNESCAPED_UNICODE);
         }
-        if ($error_code > 0 ||!empty($error_msg)) {
+        if ($error_code > 0 || !empty($error_msg)) {
             $str .= '[ERROR]' . $error_msg;
         } else {
             $str .= '[SUCCESS]';

@@ -57,6 +57,15 @@ class HttpClient
     }
 
     /**
+     * 设置表单数据类型
+     * @param $form_type
+     */
+    public function setFormType($form_type)
+    {
+        $this->uis_curl_handler->setFormType($form_type);
+    }
+
+    /**
      * 获取结果
      * @return array
      */
@@ -187,6 +196,10 @@ class HttpClient
             case 5000:
                 $result->status = 500;
                 $result->message = $msg;
+                break;
+            case 404:
+            case 401:
+                $result->status += 10000;
                 break;
             default:
                 //如果 发现服务端报错信息大于设置的值，认为是敏感信息，过滤掉
