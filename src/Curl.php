@@ -337,6 +337,12 @@ class Curl
                 }
                 break;
             case self::METHOD_PATCH:
+                $options[CURLOPT_CUSTOMREQUEST] = 'PATCH';
+                if (!empty($query_data)) {
+                    $this->convertFormData($query_data);
+                    $options[CURLOPT_POSTFIELDS] = $query_data;
+                }
+                break;
             case self::METHOD_PUT:
                 $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
                 if (!empty($query_data)) {
