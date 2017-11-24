@@ -45,6 +45,7 @@ class Curl
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
     const METHOD_DELETE = 'DELETE';
+    const METHOD_PATCH = 'PATCH';
 
     /**
      * 状态码
@@ -101,7 +102,8 @@ class Curl
         'get' => self::METHOD_GET,
         'post' => self::METHOD_POST,
         'delete' => self::METHOD_DELETE,
-        'put' => self::METHOD_PUT
+        'put' => self::METHOD_PUT,
+        'patch' => self::METHOD_PATCH
     );
 
     /**
@@ -334,6 +336,7 @@ class Curl
                     $options[CURLOPT_POSTFIELDS] = $query_data;
                 }
                 break;
+            case self::METHOD_PATCH:
             case self::METHOD_PUT:
                 $options[CURLOPT_CUSTOMREQUEST] = 'PUT';
                 if (!empty($query_data)) {
@@ -359,7 +362,6 @@ class Curl
     /**
      * json串请求数据
      * @param array $data
-     * @return string
      */
     private function convertFormData(&$data)
     {
