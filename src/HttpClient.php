@@ -208,4 +208,14 @@ class HttpClient
                 }
         }
     }
+
+    /**
+     * url参数设置【当url参数名和body里的参数名同名时需要用到该函数】
+     * @param string $var_name
+     * @param string $value
+     */
+    public function setUrlArg($var_name, $value)
+    {
+        $this->uis_curl_handler->setUrlArg($var_name, $value);
+    }
 }

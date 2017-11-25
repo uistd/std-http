@@ -6,6 +6,7 @@ require_once '../vendor/autoload.php';
 ));
 new \FFan\Std\Logger\FileLogger('logs');
 
-$test_1 = new \FFan\Std\Http\HttpClient('http://api.ffan.com/ffan/v1/pangu/index');
+$test_1 = new \FFan\Std\Http\HttpClient('http://api.ffan.com/ffan/v{version}/pangu/index');
+$test_1->setUrlArg('version', 1);
 $result = $test_1->request();
 print_r($result);

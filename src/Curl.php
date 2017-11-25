@@ -203,6 +203,16 @@ class Curl
     }
 
     /**
+     * url参数设置
+     * @param string $var_name
+     * @param string $value
+     */
+    public function setUrlArg($var_name, $value)
+    {
+        $this->uri = str_replace('{' . $var_name . '}', (string)$value, $this->uri);
+    }
+
+    /**
      * 设置超时时间
      * @param int $timeout
      */
