@@ -427,6 +427,7 @@ class Curl
         Debug::addIoStep();
         $response_text = curl_exec($curl_fd);
         $this->complete($curl_fd, $response_text);
+        $this->setCurlErrorCode($curl_fd);
         $this->closeCurl($curl_fd);
     }
 
@@ -690,5 +691,23 @@ class Curl
         while (!empty(self::$lazy_request_pool) || !empty(self::$request_pool)) {
             self::lazyRequest();
         }
+    }
+
+    /**
+     * 设置 curl 错误码
+     * @param $curl_fd Resource
+     */
+    public function setCurlErrorCode($curl_fd)
+    {
+        $this->curl_error_code = curl_errno($curl_fd);
+    }
+
+    /**
+     * 获取 curl 错误码
+     * @return int
+     */
+    public function getCurlErrorCode()
+    {
+        return $this->curl_error_code;
     }
 }

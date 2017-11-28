@@ -218,4 +218,22 @@ class HttpClient
     {
         $this->uis_curl_handler->setUrlArg($var_name, $value);
     }
+
+    /**
+     * 返回本次请求的 curl 错误码
+     * @return int
+     */
+    public function getCurlErrorCode()
+    {
+        return $this->uis_curl_handler->getCurlErrorCode();
+    }
+
+    /**
+     * 判断是否超时
+     * @return bool
+     */
+    public function isTimeout()
+    {
+        return CURLE_OPERATION_TIMEOUTED === $this->getCurlErrorCode();
+    }
 }
