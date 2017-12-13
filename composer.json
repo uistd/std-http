@@ -26,7 +26,7 @@
       "FFan\\Std\\Http\\": "src/"
     }
   },
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "archive": {
     "exclude": [
       "test",
@@ -35,18 +35,5 @@
   },
   "config": {
     "secure-http": false
-  },
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "http://composer.intra.ffan.com/repo/private/"
-    },
-    {
-      "type": "composer",
-      "url": "http://composer.intra.ffan.com/repo/packagist/"
-    },
-    {
-      "packagist": false
-    }
-  ]
+  }
 }

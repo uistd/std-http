@@ -95,6 +95,11 @@ class Curl
     private $lazy_arg;
 
     /**
+     * @var int
+     */
+    private $curl_error_code = 0;
+
+    /**
      * 支持的方法
      * @var array
      */
@@ -289,17 +294,11 @@ class Curl
         if (0 === strpos($uri, 'http')) {
             return $uri;
         }
-        $host = 'api.sit.ffan.com';
-        if (FFanEnv::isProduct()) {
-            $host = 'api.ffan.com';
-        } elseif (FFanEnv::isUat()) {
-            $host = 'api.uat.ffan.com';
-        }
-        $url = 'http://' . $host;
+        $host = Config::get('gateway_host', 'http://localhost/');
         if ('/' !== $uri{0}) {
-            $url .= '/';
+            $host .= '/';
         }
-        return $url . $uri;
+        return $host . $uri;
     }
 
 
