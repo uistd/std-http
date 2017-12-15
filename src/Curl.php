@@ -4,7 +4,6 @@ namespace FFan\Std\Http;
 
 use FFan\Std\Async\AsyncCall;
 use FFan\Std\Common\Config;
-use FFan\Std\Common\Env as FFanEnv;
 use FFan\Std\Console\Debug;
 use FFan\Std\Logger\LogHelper;
 
@@ -172,6 +171,16 @@ class Curl
     private $uri;
 
     /**
+     * @var bool 是否调试
+     */
+    private static $is_debug_mode = false;
+
+    /**
+     * @var string 网关地址
+     */
+    private static $gateway_host;
+
+    /**
      * Curl constructor.
      * @param HttpClient $client
      * @param string $uri
@@ -183,6 +192,7 @@ class Curl
         if (!is_string($uri) || empty($uri)) {
             throw new \InvalidArgumentException('Empty uri not allowed');
         }
+        self::initConfig();
         $this->uri = $uri;
         $this->setMethod($method);
         if (is_array($query_data)) {
@@ -294,7 +304,7 @@ class Curl
         if (0 === strpos($uri, 'http')) {
             return $uri;
         }
-        $host = Config::get('gateway_host', 'http://localhost/');
+        $host = self::$gateway_host;
         if ('/' !== $uri{0}) {
             $host .= '/';
         }
@@ -536,7 +546,7 @@ class Curl
             $this->response_text = $response_text;
             $this->status = self::STATUS_SUCCESS;
             //sit 或者 dev 打印出结果数据
-            if (FFanEnv::getEnv() <= FFanEnv::SIT) {
+            if (self::$is_debug_mode) {
                 $log_msg .= PHP_EOL . '[RESPONSE]' . $response_text . PHP_EOL;
             }
         }
@@ -708,5 +718,26 @@ class Curl
     public function getCurlErrorCode()
     {
         return $this->curl_error_code;
+    }
+
+    /**
+     * 初始化地址
+     */
+    private static function initConfig()
+    {
+        if (null !== self::$gateway_host) {
+            return;
+        }
+        //调试模式
+        $config_arr = Config::get('ffan-http');
+        if (isset($config_arr['debug_mode'])) {
+            self::$is_debug_mode = (bool)$config_arr['debug_mode'];
+        }
+        //控制台调试模式
+        if (Debug::isDebugIO()) {
+            self::$is_debug_mode = true;
+        }
+        //网关地址
+        self::$gateway_host = isset($config_arr['gateway_host']) ? $config_arr['gateway_host'] : 'http://localhost/';
     }
 }

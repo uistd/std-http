@@ -2,7 +2,10 @@
 require_once '../vendor/autoload.php';
 \FFan\Std\Common\Config::init(array(
     'runtime_path' => __DIR__ .'/runtime',
-    'env' => 'dev'
+    'env' => 'dev',
+    'ffan-http' => array(
+        'debug_mode' => true
+    )
 ));
 new \FFan\Std\Logger\FileLogger('logs');
 
