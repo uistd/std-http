@@ -1,15 +1,15 @@
 <?php
 
-namespace FFan\Std\Http;
+namespace UiStd\Http;
 
-use FFan\Std\Async\AsyncCall;
-use FFan\Std\Common\Config;
-use FFan\Std\Console\Debug;
-use FFan\Std\Logger\LogHelper;
+use UiStd\Async\AsyncCall;
+use UiStd\Common\Config;
+use UiStd\Console\Debug;
+use UiStd\Logger\LogHelper;
 
 /**
  * Class CurlOption UI Service CURL 定制类
- * @package FFan\Std\Http
+ * @package UiStd\Http
  */
 class Curl
 {
@@ -677,7 +677,7 @@ class Curl
             return;
         }
         unset(self::$request_pool[$this->id]);
-        AsyncCall::setCallback('Curl', array('\FFan\Std\Http\Curl', 'lazyRequest'));
+        AsyncCall::setCallback('Curl', array('\UiStd\Http\Curl', 'lazyRequest'));
         self::$lazy_request_pool[$this->id] = $this;
         $this->is_lazy_load = true;
         $this->lazy_callback = $callback;

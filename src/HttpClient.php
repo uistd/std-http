@@ -1,13 +1,13 @@
 <?php
 
-namespace FFan\Std\Http;
+namespace UiStd\Http;
 
-use FFan\Std\Common\Env;
-use FFan\Std\Logger\LogHelper;
+use UiStd\Common\Env;
+use UiStd\Logger\LogHelper;
 
 /**
  * Class HttpClient
- * @package FFan\Std\Http
+ * @package UiStd\Http
  */
 class HttpClient
 {

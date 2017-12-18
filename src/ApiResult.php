@@ -1,10 +1,10 @@
 <?php
 
-namespace FFan\Std\Http;
+namespace UiStd\Http;
 
 /**
  * Class ApiResult
- * @package FFan\Std\Http
+ * @package UiStd\Http
  */
 class ApiResult
 {
