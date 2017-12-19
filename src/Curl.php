@@ -729,7 +729,7 @@ class Curl
             return;
         }
         //调试模式
-        $config_arr = Config::get('ffan-http');
+        $config_arr = Config::get('uis-http');
         if (isset($config_arr['debug_mode'])) {
             self::$is_debug_mode = (bool)$config_arr['debug_mode'];
         }
